@@ -427,16 +427,14 @@ func (evm *EVM) create(
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, common.Address{}, gas, ErrDepth
 	}
-	if value.Sign() > 0 && !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value) {
+	if !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value) {
 		return nil, common.Address{}, gas, ErrInsufficientBalance
 	}
-
 	nonce := evm.StateDB.GetNonce(caller.Address())
 	if nonce+1 < nonce {
 		return nil, common.Address{}, gas, ErrNonceUintOverflow
 	}
 	evm.StateDB.SetNonce(caller.Address(), nonce+1)
-
 	// We add this to the access list _before_ taking a snapshot. Even if the creation fails,
 	// the access-list change should not be rolled back
 	if evm.chainRules.IsBerlin {
@@ -453,10 +451,7 @@ func (evm *EVM) create(
 	if evm.chainRules.IsEIP158 {
 		evm.StateDB.SetNonce(address, 1)
 	}
-	// transfer if value bigger than zero
-	if value.Sign() > 0 {
-		evm.Context.Transfer(evm.StateDB, caller.Address(), address, value)
-	}
+	evm.Context.Transfer(evm.StateDB, caller.Address(), address, value)
 
 	// Initialise a new contract and set the code that is to be used by the EVM.
 	// The contract is a scoped environment for this execution context only.
