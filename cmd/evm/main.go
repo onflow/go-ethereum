@@ -23,8 +23,8 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/cmd/evm/internal/t8ntool"
-	"github.com/ethereum/go-ethereum/internal/debug"
-	"github.com/ethereum/go-ethereum/internal/flags"
+	"github.com/onflow/go-ethereum/internal/debug"
+	"github.com/onflow/go-ethereum/internal/flags"
 	"github.com/urfave/cli/v2"
 )
 
