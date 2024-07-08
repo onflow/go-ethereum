@@ -435,8 +435,8 @@ func (c *codeAndHash) Hash() common.Hash {
 	return c.hash
 }
 
-// create creates a new contract using code as deployment code.
-func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *uint256.Int, address common.Address, typ OpCode) (ret []byte, createAddress common.Address, leftOverGas uint64, err error) {
+// CreateAt creates a new contract using code as deployment code.
+func (evm *EVM) CreateAt(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *uint256.Int, address common.Address, typ OpCode) (ret []byte, createAddress common.Address, leftOverGas uint64, err error) {
 	if evm.Config.Tracer != nil {
 		evm.captureBegin(evm.depth, typ, caller.Address(), address, codeAndHash.code, gas, value.ToBig())
 		defer func(startGas uint64) {
@@ -564,7 +564,7 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 // Create creates a new contract using code as deployment code.
 func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *uint256.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
 	contractAddr = crypto.CreateAddress(caller.Address(), evm.StateDB.GetNonce(caller.Address()))
-	return evm.create(caller, &codeAndHash{code: code}, gas, value, contractAddr, CREATE)
+	return evm.CreateAt(caller, &codeAndHash{code: code}, gas, value, contractAddr, CREATE)
 }
 
 // Create2 creates a new contract using code as deployment code.
@@ -574,7 +574,7 @@ func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *uint2
 func (evm *EVM) Create2(caller ContractRef, code []byte, gas uint64, endowment *uint256.Int, salt *uint256.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
 	codeAndHash := &codeAndHash{code: code}
 	contractAddr = crypto.CreateAddress2(caller.Address(), salt.Bytes32(), codeAndHash.Hash().Bytes())
-	return evm.create(caller, codeAndHash, gas, endowment, contractAddr, CREATE2)
+	return evm.CreateAt(caller, codeAndHash, gas, endowment, contractAddr, CREATE2)
 }
 
 // ChainConfig returns the environment's chain configuration
