@@ -134,6 +134,10 @@ func GetHashFn(ref *types.Header, chain ChainContext) func(n uint64) common.Hash
 func GetPrecompile(rules params.Rules, addr common.Address) (vm.PrecompiledContract, bool) {
 	var precompiles map[common.Address]vm.PrecompiledContract
 	switch {
+	case rules.IsVerkle:
+		precompiles = vm.PrecompiledContractsVerkle
+	case rules.IsPrague:
+		precompiles = vm.PrecompiledContractsPrague
 	case rules.IsCancun:
 		precompiles = vm.PrecompiledContractsCancun
 	case rules.IsBerlin:
