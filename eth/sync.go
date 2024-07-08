@@ -17,9 +17,9 @@
 package eth
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/txpool"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/core/txpool"
+	"github.com/onflow/go-ethereum/eth/protocols/eth"
 )
 
 // syncTransactions starts sending all currently pending transactions to the given peer.

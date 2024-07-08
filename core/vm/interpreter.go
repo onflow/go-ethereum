@@ -19,12 +19,12 @@ package vm
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/holiman/uint256"
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/common/math"
+	"github.com/onflow/go-ethereum/core/tracing"
+	"github.com/onflow/go-ethereum/crypto"
+	"github.com/onflow/go-ethereum/log"
 )
 
 // Config are the configuration options for the Interpreter

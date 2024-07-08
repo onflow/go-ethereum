@@ -17,10 +17,10 @@
 package blsync
 
 import (
-	"github.com/ethereum/go-ethereum/beacon/types"
-	"github.com/ethereum/go-ethereum/cmd/utils"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/onflow/go-ethereum/beacon/types"
+	"github.com/onflow/go-ethereum/cmd/utils"
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/common/hexutil"
 	"github.com/urfave/cli/v2"
 )
 

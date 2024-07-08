@@ -37,8 +37,8 @@ import (
 	"github.com/onflow/go-ethereum/params"
 
 	// force-load js tracers to trigger registration
-	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
 	"github.com/holiman/uint256"
+	_ "github.com/onflow/go-ethereum/eth/tracers/js"
 )
 
 func TestDefaults(t *testing.T) {

@@ -5,11 +5,11 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/common/math"
+	"github.com/onflow/go-ethereum/consensus/misc/eip4844"
+	"github.com/onflow/go-ethereum/core"
+	"github.com/onflow/go-ethereum/core/vm"
 
 	// Force-load native and js packages, to trigger registration
 	_ "github.com/onflow/go-ethereum/eth/tracers/js"

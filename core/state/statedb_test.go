@@ -31,22 +31,11 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/state/snapshot"
-	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/trie"
-	"github.com/ethereum/go-ethereum/trie/trienode"
-	"github.com/ethereum/go-ethereum/triedb"
-	"github.com/ethereum/go-ethereum/triedb/hashdb"
-	"github.com/ethereum/go-ethereum/triedb/pathdb"
 	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/state/snapshot"
+	"github.com/onflow/go-ethereum/core/tracing"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/crypto"
 	"github.com/onflow/go-ethereum/rlp"
@@ -54,6 +43,9 @@ import (
 	"github.com/onflow/go-ethereum/trie/triedb/hashdb"
 	"github.com/onflow/go-ethereum/trie/triedb/pathdb"
 	"github.com/onflow/go-ethereum/trie/trienode"
+	"github.com/onflow/go-ethereum/triedb"
+	"github.com/onflow/go-ethereum/triedb/hashdb"
+	"github.com/onflow/go-ethereum/triedb/pathdb"
 )
 
 // Tests that updating a state trie does not leak any database writes prior to

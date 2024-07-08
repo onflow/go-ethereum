@@ -17,10 +17,9 @@
 package vm
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/core/tracing"
 )
 
 // ContractRef is a reference to the contract's backing object

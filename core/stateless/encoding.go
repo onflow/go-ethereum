@@ -23,9 +23,9 @@ import (
 	"io"
 	"slices"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/onflow/go-ethereum/common/hexutil"
+	"github.com/onflow/go-ethereum/core/types"
+	"github.com/onflow/go-ethereum/rlp"
 )
 
 //go:generate go run github.com/fjl/gencodec -type extWitness -field-override extWitnessMarshalling -out gen_encoding_json.go

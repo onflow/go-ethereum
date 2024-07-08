@@ -19,9 +19,9 @@ package backends
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient/simulated"
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/core/types"
+	"github.com/onflow/go-ethereum/ethclient/simulated"
 )
 
 // SimulatedBackend is a simulated blockchain.

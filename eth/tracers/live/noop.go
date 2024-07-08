@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/core/tracing"
+	"github.com/onflow/go-ethereum/core/types"
+	"github.com/onflow/go-ethereum/eth/tracers"
+	"github.com/onflow/go-ethereum/params"
 )
 
 func init() {
