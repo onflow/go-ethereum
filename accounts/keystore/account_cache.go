@@ -22,16 +22,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
 	"time"
 
 	mapset "github.com/deckarep/golang-set/v2"
-	"github.com/onflow/go-ethereum/accounts"
-	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/log"
-	"golang.org/x/exp/slices"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // Minimum amount of time between cache reloads. This limit applies if the platform does

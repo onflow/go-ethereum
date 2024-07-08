@@ -21,11 +21,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"time"
 
-	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/p2p/enode"
-	"golang.org/x/exp/slices"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/p2p/enode"
 )
 
 const jsonIndent = "    "

@@ -17,31 +17,37 @@
 package t8ntool
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
 
-	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/common/math"
-	"github.com/onflow/go-ethereum/consensus/ethash"
-	"github.com/onflow/go-ethereum/consensus/misc"
-	"github.com/onflow/go-ethereum/consensus/misc/eip4844"
-	"github.com/onflow/go-ethereum/core"
-	"github.com/onflow/go-ethereum/core/rawdb"
-	"github.com/onflow/go-ethereum/core/state"
-	"github.com/onflow/go-ethereum/core/types"
-	"github.com/onflow/go-ethereum/core/vm"
-	"github.com/onflow/go-ethereum/crypto"
-	"github.com/onflow/go-ethereum/ethdb"
-	"github.com/onflow/go-ethereum/log"
-	"github.com/onflow/go-ethereum/params"
-	"github.com/onflow/go-ethereum/rlp"
-	"github.com/onflow/go-ethereum/trie"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/consensus/ethash"
+	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/tracing"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/eth/tracers"
+	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/trie"
+	"github.com/ethereum/go-ethereum/triedb"
+	"github.com/holiman/uint256"
 	"golang.org/x/crypto/sha3"
 )
 
 type Prestate struct {
-	Env stEnv             `json:"env"`
-	Pre core.GenesisAlloc `json:"pre"`
+	Env stEnv              `json:"env"`
+	Pre types.GenesisAlloc `json:"pre"`
 }
 
 // ExecutionResult contains the execution status after running a state test, any
@@ -117,7 +123,7 @@ type rejectedTx struct {
 // Apply applies a set of transactions to a pre-state
 func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 	txIt txIterator, miningReward int64,
-	getTracerFn func(txIndex int, txHash common.Hash) (tracer vm.EVMLogger, err error)) (*state.StateDB, *ExecutionResult, []byte, error) {
+	getTracerFn func(txIndex int, txHash common.Hash) (*tracers.Tracer, io.WriteCloser, error)) (*state.StateDB, *ExecutionResult, []byte, error) {
 	// Capture errors for BLOCKHASH operation, if we haven't been supplied the
 	// required blockhashes
 	var hashError error
@@ -140,6 +146,7 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 		rejectedTxs []*rejectedTx
 		includedTxs types.Transactions
 		gasUsed     = uint64(0)
+		blobGasUsed = uint64(0)
 		receipts    = make(types.Receipts, 0)
 		txIndex     = 0
 	)
@@ -167,7 +174,7 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 	// Calculate the BlobBaseFee
 	var excessBlobGas uint64
 	if pre.Env.ExcessBlobGas != nil {
-		excessBlobGas := *pre.Env.ExcessBlobGas
+		excessBlobGas = *pre.Env.ExcessBlobGas
 		vmContext.BlobBaseFee = eip4844.CalcBlobFee(excessBlobGas)
 	} else {
 		// If it is not explicitly defined, but we have the parent values, we try
@@ -190,7 +197,6 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 		evm := vm.NewEVM(vmContext, vm.TxContext{}, statedb, chainConfig, vmConfig)
 		core.ProcessBeaconBlockRoot(*beaconRoot, evm, statedb)
 	}
-	var blobGasUsed uint64
 
 	for i := 0; txIt.Next(); i++ {
 		tx, err := txIt.Tx()
@@ -211,21 +217,23 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 			rejectedTxs = append(rejectedTxs, &rejectedTx{i, err.Error()})
 			continue
 		}
+		txBlobGas := uint64(0)
 		if tx.Type() == types.BlobTxType {
-			txBlobGas := uint64(params.BlobTxBlobGasPerBlob * len(tx.BlobHashes()))
+			txBlobGas = uint64(params.BlobTxBlobGasPerBlob * len(tx.BlobHashes()))
 			if used, max := blobGasUsed+txBlobGas, uint64(params.MaxBlobGasPerBlock); used > max {
 				err := fmt.Errorf("blob gas (%d) would exceed maximum allowance %d", used, max)
 				log.Warn("rejected tx", "index", i, "err", err)
 				rejectedTxs = append(rejectedTxs, &rejectedTx{i, err.Error()})
 				continue
 			}
-			blobGasUsed += txBlobGas
 		}
-		tracer, err := getTracerFn(txIndex, tx.Hash())
+		tracer, traceOutput, err := getTracerFn(txIndex, tx.Hash())
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		vmConfig.Tracer = tracer
+		if tracer != nil {
+			vmConfig.Tracer = tracer.Hooks
+		}
 		statedb.SetTxContext(tx.Hash(), txIndex)
 
 		var (
@@ -235,6 +243,9 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 		)
 		evm := vm.NewEVM(vmContext, txContext, statedb, chainConfig, vmConfig)
 
+		if tracer != nil && tracer.OnTxStart != nil {
+			tracer.OnTxStart(evm.GetVMContext(), tx, msg.From)
+		}
 		// (ret []byte, usedGas uint64, failed bool, err error)
 		msgResult, err := core.ApplyMessage(evm, msg, gaspool)
 		if err != nil {
@@ -242,12 +253,21 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 			log.Info("rejected tx", "index", i, "hash", tx.Hash(), "from", msg.From, "error", err)
 			rejectedTxs = append(rejectedTxs, &rejectedTx{i, err.Error()})
 			gaspool.SetGas(prevGas)
+			if tracer != nil {
+				if tracer.OnTxEnd != nil {
+					tracer.OnTxEnd(nil, err)
+				}
+				if err := writeTraceResult(tracer, traceOutput); err != nil {
+					log.Warn("Error writing tracer output", "err", err)
+				}
+			}
 			continue
 		}
 		includedTxs = append(includedTxs, tx)
 		if hashError != nil {
 			return nil, nil, nil, NewError(ErrorMissingBlockhash, hashError)
 		}
+		blobGasUsed += txBlobGas
 		gasUsed += msgResult.UsedGas
 
 		// Receipt:
@@ -283,6 +303,14 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 			//receipt.BlockNumber
 			receipt.TransactionIndex = uint(txIndex)
 			receipts = append(receipts, receipt)
+			if tracer != nil {
+				if tracer.Hooks.OnTxEnd != nil {
+					tracer.Hooks.OnTxEnd(receipt, nil)
+				}
+				if err = writeTraceResult(tracer, traceOutput); err != nil {
+					log.Warn("Error writing tracer output", "err", err)
+				}
+			}
 		}
 
 		txIndex++
@@ -298,7 +326,7 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 		var (
 			blockReward = big.NewInt(miningReward)
 			minerReward = new(big.Int).Set(blockReward)
-			perOmmer    = new(big.Int).Div(blockReward, big.NewInt(32))
+			perOmmer    = new(big.Int).Rsh(blockReward, 5)
 		)
 		for _, ommer := range pre.Env.Ommers {
 			// Add 1/32th for each ommer included
@@ -307,16 +335,16 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 			reward := big.NewInt(8)
 			reward.Sub(reward, new(big.Int).SetUint64(ommer.Delta))
 			reward.Mul(reward, blockReward)
-			reward.Div(reward, big.NewInt(8))
-			statedb.AddBalance(ommer.Address, reward)
+			reward.Rsh(reward, 3)
+			statedb.AddBalance(ommer.Address, uint256.MustFromBig(reward), tracing.BalanceIncreaseRewardMineUncle)
 		}
-		statedb.AddBalance(pre.Env.Coinbase, minerReward)
+		statedb.AddBalance(pre.Env.Coinbase, uint256.MustFromBig(minerReward), tracing.BalanceIncreaseRewardMineBlock)
 	}
 	// Apply withdrawals
 	for _, w := range pre.Env.Withdrawals {
 		// Amount is in gwei, turn into wei
 		amount := new(big.Int).Mul(new(big.Int).SetUint64(w.Amount), big.NewInt(params.GWei))
-		statedb.AddBalance(w.Address, amount)
+		statedb.AddBalance(w.Address, uint256.MustFromBig(amount), tracing.BalanceIncreaseWithdrawal)
 	}
 	// Commit block
 	root, err := statedb.Commit(vmContext.BlockNumber.Uint64(), chainConfig.IsEIP158(vmContext.BlockNumber))
@@ -353,13 +381,13 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig *params.ChainConfig,
 	return statedb, execRs, body, nil
 }
 
-func MakePreState(db ethdb.Database, accounts core.GenesisAlloc) *state.StateDB {
-	sdb := state.NewDatabaseWithConfig(db, &trie.Config{Preimages: true})
+func MakePreState(db ethdb.Database, accounts types.GenesisAlloc) *state.StateDB {
+	sdb := state.NewDatabaseWithConfig(db, &triedb.Config{Preimages: true})
 	statedb, _ := state.New(types.EmptyRootHash, sdb, nil)
 	for addr, a := range accounts {
 		statedb.SetCode(addr, a.Code)
 		statedb.SetNonce(addr, a.Nonce)
-		statedb.SetBalance(addr, a.Balance)
+		statedb.SetBalance(addr, uint256.MustFromBig(a.Balance), tracing.BalanceIncreaseGenesisBalance)
 		for k, v := range a.Storage {
 			statedb.SetState(addr, k, v)
 		}
@@ -395,4 +423,17 @@ func calcDifficulty(config *params.ChainConfig, number, currentTime, parentTime 
 		Time:       parentTime,
 	}
 	return ethash.CalcDifficulty(config, currentTime, parent)
+}
+
+func writeTraceResult(tracer *tracers.Tracer, f io.WriteCloser) error {
+	defer f.Close()
+	result, err := tracer.GetResult()
+	if err != nil || result == nil {
+		return err
+	}
+	err = json.NewEncoder(f).Encode(result)
+	if err != nil {
+		return err
+	}
+	return nil
 }

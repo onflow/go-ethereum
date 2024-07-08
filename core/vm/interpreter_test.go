@@ -17,16 +17,16 @@
 package vm
 
 import (
-	"math/big"
 	"testing"
 	"time"
 
-	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/common/math"
-	"github.com/onflow/go-ethereum/core/rawdb"
-	"github.com/onflow/go-ethereum/core/state"
-	"github.com/onflow/go-ethereum/core/types"
-	"github.com/onflow/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/holiman/uint256"
 )
 
 var loopInterruptTests = []string{
@@ -39,7 +39,7 @@ var loopInterruptTests = []string{
 func TestLoopInterrupt(t *testing.T) {
 	address := common.BytesToAddress([]byte("contract"))
 	vmctx := BlockContext{
-		Transfer: func(StateDB, common.Address, common.Address, *big.Int) {},
+		Transfer: func(StateDB, common.Address, common.Address, *uint256.Int) {},
 	}
 
 	for i, tt := range loopInterruptTests {
@@ -54,7 +54,7 @@ func TestLoopInterrupt(t *testing.T) {
 		timeout := make(chan bool)
 
 		go func(evm *EVM) {
-			_, _, err := evm.Call(AccountRef(common.Address{}), address, nil, math.MaxUint64, new(big.Int))
+			_, _, err := evm.Call(AccountRef(common.Address{}), address, nil, math.MaxUint64, new(uint256.Int))
 			errChannel <- err
 		}(evm)
 
