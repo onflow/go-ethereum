@@ -27,6 +27,10 @@ import (
 	"time"
 
 	bloomfilter "github.com/holiman/bloomfilter/v2"
+
+	"github.com/onflow/go-ethereum/common"
+	"github.com/onflow/go-ethereum/core/types"
+	"github.com/onflow/go-ethereum/rlp"
 )
 
 var (
