@@ -423,12 +423,12 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 	return ret, gas, err
 }
 
-type codeAndHash struct {
+type CodeAndHash struct {
 	code []byte
 	hash common.Hash
 }
 
-func (c *codeAndHash) Hash() common.Hash {
+func (c *CodeAndHash) Hash() common.Hash {
 	if c.hash == (common.Hash{}) {
 		c.hash = crypto.Keccak256Hash(c.code)
 	}
@@ -436,7 +436,7 @@ func (c *codeAndHash) Hash() common.Hash {
 }
 
 // CreateAt creates a new contract using code as deployment code.
-func (evm *EVM) CreateAt(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *uint256.Int, address common.Address, typ OpCode) (ret []byte, createAddress common.Address, leftOverGas uint64, err error) {
+func (evm *EVM) CreateAt(caller ContractRef, codeAndHash *CodeAndHash, gas uint64, value *uint256.Int, address common.Address, typ OpCode) (ret []byte, createAddress common.Address, leftOverGas uint64, err error) {
 	if evm.Config.Tracer != nil {
 		evm.captureBegin(evm.depth, typ, caller.Address(), address, codeAndHash.code, gas, value.ToBig())
 		defer func(startGas uint64) {
@@ -564,7 +564,7 @@ func (evm *EVM) CreateAt(caller ContractRef, codeAndHash *codeAndHash, gas uint6
 // Create creates a new contract using code as deployment code.
 func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *uint256.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
 	contractAddr = crypto.CreateAddress(caller.Address(), evm.StateDB.GetNonce(caller.Address()))
-	return evm.CreateAt(caller, &codeAndHash{code: code}, gas, value, contractAddr, CREATE)
+	return evm.CreateAt(caller, &CodeAndHash{code: code}, gas, value, contractAddr, CREATE)
 }
 
 // Create2 creates a new contract using code as deployment code.
@@ -572,7 +572,7 @@ func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *uint2
 // The different between Create2 with Create is Create2 uses keccak256(0xff ++ msg.sender ++ salt ++ keccak256(init_code))[12:]
 // instead of the usual sender-and-nonce-hash as the address where the contract is initialized at.
 func (evm *EVM) Create2(caller ContractRef, code []byte, gas uint64, endowment *uint256.Int, salt *uint256.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
-	codeAndHash := &codeAndHash{code: code}
+	codeAndHash := &CodeAndHash{code: code}
 	contractAddr = crypto.CreateAddress2(caller.Address(), salt.Bytes32(), codeAndHash.Hash().Bytes())
 	return evm.CreateAt(caller, codeAndHash, gas, endowment, contractAddr, CREATE2)
 }
