@@ -72,8 +72,6 @@ import (
 	"github.com/onflow/go-ethereum/p2p/netutil"
 	"github.com/onflow/go-ethereum/params"
 	"github.com/onflow/go-ethereum/rpc"
-	"github.com/onflow/go-ethereum/trie/triedb/hashdb"
-	"github.com/onflow/go-ethereum/trie/triedb/pathdb"
 	"github.com/onflow/go-ethereum/triedb"
 	"github.com/onflow/go-ethereum/triedb/hashdb"
 	"github.com/onflow/go-ethereum/triedb/pathdb"

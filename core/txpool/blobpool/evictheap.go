@@ -22,6 +22,7 @@ import (
 	"slices"
 
 	"github.com/holiman/uint256"
+	"github.com/onflow/go-ethereum/common"
 	"golang.org/x/exp/maps"
 )
 
