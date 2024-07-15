@@ -22,10 +22,10 @@ package discover
 import (
 	"fmt"
 	"net"
+	"slices"
 	"time"
 
 	"github.com/onflow/go-ethereum/log"
-	"golang.org/x/exp/slices"
 )
 
 const (

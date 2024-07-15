@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"slices"
 	"sync"
 	"time"
 
@@ -31,7 +32,6 @@ import (
 	"github.com/onflow/go-ethereum/p2p/enode"
 	"github.com/onflow/go-ethereum/p2p/enr"
 	"github.com/onflow/go-ethereum/rlp"
-	"golang.org/x/exp/slices"
 )
 
 var (

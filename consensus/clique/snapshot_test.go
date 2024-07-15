@@ -21,6 +21,7 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 	"math/big"
+	"slices"
 	"testing"
 
 	"github.com/onflow/go-ethereum/common"
@@ -30,7 +31,6 @@ import (
 	"github.com/onflow/go-ethereum/core/vm"
 	"github.com/onflow/go-ethereum/crypto"
 	"github.com/onflow/go-ethereum/params"
-	"golang.org/x/exp/slices"
 )
 
 // testerAccountPool is a pool to maintain currently active tester accounts,

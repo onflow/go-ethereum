@@ -20,12 +20,12 @@ import (
 	crand "crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"math/big"
 	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/VictoriaMetrics/fastcache"
+	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/types"
@@ -44,7 +44,7 @@ func randomHash() common.Hash {
 // randomAccount generates a random account and returns it RLP encoded.
 func randomAccount() []byte {
 	a := &types.StateAccount{
-		Balance:  big.NewInt(rand.Int63()),
+		Balance:  uint256.NewInt(rand.Uint64()),
 		Nonce:    rand.Uint64(),
 		Root:     randomHash(),
 		CodeHash: types.EmptyCodeHash[:],

@@ -19,9 +19,11 @@ package core
 import (
 	"math/big"
 
+	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/consensus"
 	"github.com/onflow/go-ethereum/consensus/misc/eip4844"
+	"github.com/onflow/go-ethereum/core/tracing"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/core/vm"
 	"github.com/onflow/go-ethereum/params"
@@ -58,7 +60,7 @@ func NewEVMBlockContext(header *types.Header, chain ChainContext, author *common
 	if header.ExcessBlobGas != nil {
 		blobBaseFee = eip4844.CalcBlobFee(*header.ExcessBlobGas)
 	}
-	if header.Difficulty.Cmp(common.Big0) == 0 {
+	if header.Difficulty.Sign() == 0 {
 		random = &header.MixDigest
 	}
 	return vm.BlockContext{
@@ -132,6 +134,10 @@ func GetHashFn(ref *types.Header, chain ChainContext) func(n uint64) common.Hash
 func GetPrecompile(rules params.Rules, addr common.Address) (vm.PrecompiledContract, bool) {
 	var precompiles map[common.Address]vm.PrecompiledContract
 	switch {
+	case rules.IsVerkle:
+		precompiles = vm.PrecompiledContractsVerkle
+	case rules.IsPrague:
+		precompiles = vm.PrecompiledContractsPrague
 	case rules.IsCancun:
 		precompiles = vm.PrecompiledContractsCancun
 	case rules.IsBerlin:
@@ -149,12 +155,12 @@ func GetPrecompile(rules params.Rules, addr common.Address) (vm.PrecompiledContr
 
 // CanTransfer checks whether there are enough funds in the address' account to make a transfer.
 // This does not take the necessary gas in to account to make the transfer valid.
-func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
+func CanTransfer(db vm.StateDB, addr common.Address, amount *uint256.Int) bool {
 	return db.GetBalance(addr).Cmp(amount) >= 0
 }
 
 // Transfer subtracts amount from sender and adds amount to recipient using the given Db
-func Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
-	db.SubBalance(sender, amount)
-	db.AddBalance(recipient, amount)
+func Transfer(db vm.StateDB, sender, recipient common.Address, amount *uint256.Int) {
+	db.SubBalance(sender, amount, tracing.BalanceChangeTransfer)
+	db.AddBalance(recipient, amount, tracing.BalanceChangeTransfer)
 }
