@@ -24,7 +24,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/onflow/go-ethereum/crypto"
-	"github.com/onflow/go-ethereum/p2p/simulations/pipes"
+	"github.com/onflow/go-ethereum/p2p/pipes"
 )
 
 func TestProtocolHandshake(t *testing.T) {
