@@ -23,7 +23,6 @@ import (
 	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/common/math"
-	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/state"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/params"
@@ -43,7 +42,7 @@ func TestLoopInterrupt(t *testing.T) {
 	}
 
 	for i, tt := range loopInterruptTests {
-		statedb, _ := state.New(types.EmptyRootHash, state.NewDatabase(rawdb.NewMemoryDatabase()), nil)
+		statedb, _ := state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
 		statedb.CreateAccount(address)
 		statedb.SetCode(address, common.Hex2Bytes(tt))
 		statedb.Finalise(true)
