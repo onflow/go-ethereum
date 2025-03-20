@@ -30,7 +30,6 @@ import (
 	"github.com/onflow/go-ethereum"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/common/hexutil"
-	"github.com/onflow/go-ethereum/common/math"
 	"github.com/onflow/go-ethereum/consensus/misc/eip1559"
 	"github.com/onflow/go-ethereum/core/state"
 	"github.com/onflow/go-ethereum/core/types"
@@ -277,7 +276,11 @@ func (t *Transaction) GasPrice(ctx context.Context) hexutil.Big {
 		if block != nil {
 			if baseFee, _ := block.BaseFeePerGas(ctx); baseFee != nil {
 				// price = min(gasTipCap + baseFee, gasFeeCap)
-				return (hexutil.Big)(*math.BigMin(new(big.Int).Add(tx.GasTipCap(), baseFee.ToInt()), tx.GasFeeCap()))
+				gasFeeCap, effectivePrice := tx.GasFeeCap(), new(big.Int).Add(tx.GasTipCap(), baseFee.ToInt())
+				if effectivePrice.Cmp(gasFeeCap) < 0 {
+					return (hexutil.Big)(*effectivePrice)
+				}
+				return (hexutil.Big)(*gasFeeCap)
 			}
 		}
 		return hexutil.Big(*tx.GasPrice())
@@ -302,7 +305,11 @@ func (t *Transaction) EffectiveGasPrice(ctx context.Context) (*hexutil.Big, erro
 	if header.BaseFee == nil {
 		return (*hexutil.Big)(tx.GasPrice()), nil
 	}
-	return (*hexutil.Big)(math.BigMin(new(big.Int).Add(tx.GasTipCap(), header.BaseFee), tx.GasFeeCap())), nil
+	gasFeeCap, effectivePrice := tx.GasFeeCap(), new(big.Int).Add(tx.GasTipCap(), header.BaseFee)
+	if effectivePrice.Cmp(gasFeeCap) < 0 {
+		return (*hexutil.Big)(effectivePrice), nil
+	}
+	return (*hexutil.Big)(gasFeeCap), nil
 }
 
 func (t *Transaction) MaxFeePerGas(ctx context.Context) *hexutil.Big {

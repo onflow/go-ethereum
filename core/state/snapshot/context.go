@@ -20,10 +20,10 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"math"
 	"time"
 
 	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/common/math"
 	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/ethdb"
 	"github.com/onflow/go-ethereum/ethdb/memorydb"
