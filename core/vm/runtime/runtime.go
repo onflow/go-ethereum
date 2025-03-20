@@ -22,7 +22,6 @@ import (
 
 	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/state"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/core/vm"
@@ -128,7 +127,7 @@ func Execute(code, input []byte, cfg *Config) ([]byte, *state.StateDB, error) {
 	setDefaults(cfg)
 
 	if cfg.State == nil {
-		cfg.State, _ = state.New(types.EmptyRootHash, state.NewDatabase(rawdb.NewMemoryDatabase()), nil)
+		cfg.State, _ = state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
 	}
 	var (
 		address = common.BytesToAddress([]byte("contract"))
@@ -165,7 +164,7 @@ func Create(input []byte, cfg *Config) ([]byte, common.Address, uint64, error) {
 	setDefaults(cfg)
 
 	if cfg.State == nil {
-		cfg.State, _ = state.New(types.EmptyRootHash, state.NewDatabase(rawdb.NewMemoryDatabase()), nil)
+		cfg.State, _ = state.New(types.EmptyRootHash, state.NewDatabaseForTesting())
 	}
 	var (
 		vmenv  = NewEnv(cfg)
