@@ -27,7 +27,6 @@ import (
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/core"
 	"github.com/onflow/go-ethereum/core/forkid"
-	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/txpool"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/crypto"
@@ -41,7 +40,6 @@ import (
 	"github.com/onflow/go-ethereum/metrics"
 	"github.com/onflow/go-ethereum/p2p"
 	"github.com/onflow/go-ethereum/p2p/enode"
-	"github.com/onflow/go-ethereum/triedb/pathdb"
 )
 
 const (
@@ -557,8 +555,5 @@ func (h *handler) enableSyncedFeatures() {
 	if h.snapSync.Load() {
 		log.Info("Snap sync complete, auto disabling")
 		h.snapSync.Store(false)
-	}
-	if h.chain.TrieDB().Scheme() == rawdb.PathScheme {
-		h.chain.TrieDB().SetBufferSize(pathdb.DefaultBufferSize)
 	}
 }
