@@ -34,7 +34,6 @@ import (
 	"github.com/onflow/go-ethereum/internal/debug"
 	"github.com/onflow/go-ethereum/internal/flags"
 	"github.com/onflow/go-ethereum/log"
-	"github.com/onflow/go-ethereum/metrics"
 	"github.com/onflow/go-ethereum/node"
 	"go.uber.org/automaxprocs/maxprocs"
 
@@ -325,12 +324,6 @@ func prepare(ctx *cli.Context) {
 			ctx.Set(utils.CacheFlag.Name, strconv.Itoa(4096))
 		}
 	}
-
-	// Start metrics export if enabled
-	utils.SetupMetrics(ctx)
-
-	// Start system runtime metrics collection
-	go metrics.CollectProcessMetrics(3 * time.Second)
 }
 
 // geth is the main entry point into the system if no special subcommand is run.

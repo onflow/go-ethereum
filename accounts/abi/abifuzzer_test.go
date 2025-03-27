@@ -23,7 +23,6 @@ import (
 	"testing"
 
 	fuzz "github.com/google/gofuzz"
-	"github.com/onflow/go-ethereum/accounts/abi"
 )
 
 // TestReplicate can be used to replicate crashers from the fuzzing tests.
