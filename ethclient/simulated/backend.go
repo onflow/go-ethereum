@@ -26,7 +26,6 @@ import (
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/eth"
 	"github.com/onflow/go-ethereum/eth/catalyst"
-	"github.com/onflow/go-ethereum/eth/downloader"
 	"github.com/onflow/go-ethereum/eth/ethconfig"
 	"github.com/onflow/go-ethereum/eth/filters"
 	"github.com/onflow/go-ethereum/ethclient"
@@ -85,7 +84,7 @@ func NewBackend(alloc types.GenesisAlloc, options ...func(nodeConf *node.Config,
 		GasLimit: ethconfig.Defaults.Miner.GasCeil,
 		Alloc:    alloc,
 	}
-	ethConf.SyncMode = downloader.FullSync
+	ethConf.SyncMode = ethconfig.FullSync
 	ethConf.TxPool.NoLocals = true
 
 	for _, option := range options {

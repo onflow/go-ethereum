@@ -30,7 +30,7 @@ import (
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/core/vm"
 	"github.com/onflow/go-ethereum/crypto"
-	"github.com/onflow/go-ethereum/eth/downloader"
+	"github.com/onflow/go-ethereum/eth/ethconfig"
 	"github.com/onflow/go-ethereum/ethdb"
 	"github.com/onflow/go-ethereum/event"
 	"github.com/onflow/go-ethereum/params"
@@ -80,7 +80,7 @@ func (p *testTxPool) Get(hash common.Hash) *types.Transaction {
 
 // Add appends a batch of transactions to the pool, and notifies any
 // listeners if the addition channel is non nil
-func (p *testTxPool) Add(txs []*types.Transaction, local bool, sync bool) []error {
+func (p *testTxPool) Add(txs []*types.Transaction, sync bool) []error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
@@ -164,7 +164,7 @@ func newTestHandlerWithBlocks(blocks int) *testHandler {
 		Chain:      chain,
 		TxPool:     txpool,
 		Network:    1,
-		Sync:       downloader.SnapSync,
+		Sync:       ethconfig.SnapSync,
 		BloomCache: 1,
 	})
 	handler.Start(1000)
