@@ -19,11 +19,11 @@ package core
 import (
 	crand "crypto/rand"
 	"errors"
+	"math"
 	"math/big"
 	mrand "math/rand"
 
 	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/common/math"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/log"
 	"github.com/onflow/go-ethereum/params"

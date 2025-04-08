@@ -17,12 +17,12 @@
 package vm
 
 import (
+	"math"
 	"testing"
 	"time"
 
 	"github.com/holiman/uint256"
 	"github.com/onflow/go-ethereum/common"
-	"github.com/onflow/go-ethereum/common/math"
 	"github.com/onflow/go-ethereum/core/state"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/params"
