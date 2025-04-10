@@ -29,7 +29,7 @@ import (
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/common/lru"
 	"github.com/onflow/go-ethereum/core"
-	"github.com/onflow/go-ethereum/core/bloombits"
+	"github.com/onflow/go-ethereum/core/filtermaps"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/ethdb"
 	"github.com/onflow/go-ethereum/event"
@@ -69,8 +69,7 @@ type Backend interface {
 	SubscribeRemovedLogsEvent(ch chan<- core.RemovedLogsEvent) event.Subscription
 	SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription
 
-	BloomStatus() (uint64, uint64)
-	ServiceFilter(ctx context.Context, session *bloombits.MatcherSession)
+	NewMatcherBackend() filtermaps.MatcherBackend
 }
 
 // FilterSystem holds resources shared by all filters.
