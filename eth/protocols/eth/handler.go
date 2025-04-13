@@ -22,6 +22,7 @@ import (
 
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/core"
+	"github.com/onflow/go-ethereum/core/txpool"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/metrics"
 	"github.com/onflow/go-ethereum/p2p"
@@ -90,6 +91,10 @@ type TxPool interface {
 	// GetRLP retrieves the RLP-encoded transaction from the local txpool with
 	// the given hash.
 	GetRLP(hash common.Hash) []byte
+
+	// GetMetadata returns the transaction type and transaction size with the
+	// given transaction hash.
+	GetMetadata(hash common.Hash) *txpool.TxMetadata
 }
 
 // MakeProtocols constructs the P2P protocol definitions for `eth`.
