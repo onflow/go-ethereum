@@ -28,8 +28,8 @@ import (
 	"github.com/onflow/go-ethereum"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/common/hexutil"
+	"github.com/onflow/go-ethereum/core/history"
 	"github.com/onflow/go-ethereum/core/types"
-	"github.com/onflow/go-ethereum/eth/ethconfig"
 	"github.com/onflow/go-ethereum/internal/ethapi"
 	"github.com/onflow/go-ethereum/rpc"
 )
@@ -360,7 +360,7 @@ func (api *FilterAPI) GetLogs(ctx context.Context, crit FilterCriteria) ([]*type
 			return nil, errInvalidBlockRange
 		}
 		if begin > 0 && begin < int64(api.events.backend.HistoryPruningCutoff()) {
-			return nil, &ethconfig.PrunedHistoryError{}
+			return nil, &history.PrunedHistoryError{}
 		}
 		// Construct the range filter
 		filter = api.sys.NewRangeFilter(begin, end, crit.Addresses, crit.Topics)

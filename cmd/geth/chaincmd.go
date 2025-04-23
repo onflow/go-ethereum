@@ -31,11 +31,11 @@ import (
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/common/hexutil"
 	"github.com/onflow/go-ethereum/core"
+	"github.com/onflow/go-ethereum/core/history"
 	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/state"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/crypto"
-	"github.com/onflow/go-ethereum/eth/ethconfig"
 	"github.com/onflow/go-ethereum/ethdb"
 	"github.com/onflow/go-ethereum/internal/debug"
 	"github.com/onflow/go-ethereum/internal/era"
@@ -625,7 +625,7 @@ func pruneHistory(ctx *cli.Context) error {
 	defer chain.Stop()
 
 	// Determine the prune point. This will be the first PoS block.
-	prunePoint, ok := ethconfig.HistoryPrunePoints[chain.Genesis().Hash()]
+	prunePoint, ok := history.PrunePoints[chain.Genesis().Hash()]
 	if !ok || prunePoint == nil {
 		return errors.New("prune point not found")
 	}

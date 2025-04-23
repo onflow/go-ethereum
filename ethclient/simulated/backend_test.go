@@ -25,16 +25,14 @@ import (
 	"testing"
 	"time"
 
-	"go.uber.org/goleak"
-
 	"github.com/holiman/uint256"
-	"github.com/onflow/go-ethereum/crypto/kzg4844"
-
 	"github.com/onflow/go-ethereum/accounts/abi/bind"
 	"github.com/onflow/go-ethereum/common"
 	"github.com/onflow/go-ethereum/core/types"
 	"github.com/onflow/go-ethereum/crypto"
+	"github.com/onflow/go-ethereum/crypto/kzg4844"
 	"github.com/onflow/go-ethereum/params"
+	"go.uber.org/goleak"
 )
 
 var _ bind.ContractBackend = (Client)(nil)
