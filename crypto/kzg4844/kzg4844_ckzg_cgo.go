@@ -24,7 +24,7 @@ import (
 	"sync"
 
 	gokzg4844 "github.com/crate-crypto/go-eth-kzg"
-	ckzg4844 "github.com/onflow/c-kzg-4844/v2/bindings/go"
+	ckzg4844 "github.com/ethereum/c-kzg-4844/v2/bindings/go"
 	"github.com/onflow/go-ethereum/common/hexutil"
 )
 
