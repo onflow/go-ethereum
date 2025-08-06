@@ -34,6 +34,7 @@ import (
 	"time"
 
 	"github.com/golang/snappy"
+	"github.com/onflow/go-ethereum/common/bitutil"
 	"github.com/onflow/go-ethereum/crypto"
 	"github.com/onflow/go-ethereum/crypto/ecies"
 	"github.com/onflow/go-ethereum/rlp"
@@ -676,8 +677,6 @@ func exportPubkey(pub *ecies.PublicKey) []byte {
 
 func xor(one, other []byte) (xor []byte) {
 	xor = make([]byte, len(one))
-	for i := 0; i < len(one); i++ {
-		xor[i] = one[i] ^ other[i]
-	}
+	bitutil.XORBytes(xor, one, other)
 	return xor
 }
