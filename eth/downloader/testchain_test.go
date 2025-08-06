@@ -27,7 +27,6 @@ import (
 	"github.com/onflow/go-ethereum/core"
 	"github.com/onflow/go-ethereum/core/rawdb"
 	"github.com/onflow/go-ethereum/core/types"
-	"github.com/onflow/go-ethereum/core/vm"
 	"github.com/onflow/go-ethereum/crypto"
 	"github.com/onflow/go-ethereum/params"
 	"github.com/onflow/go-ethereum/triedb"
@@ -217,7 +216,7 @@ func newTestBlockchain(blocks []*types.Block) *core.BlockChain {
 		if pregenerated {
 			panic("Requested chain generation outside of init")
 		}
-		chain, err := core.NewBlockChain(rawdb.NewMemoryDatabase(), nil, testGspec, nil, ethash.NewFaker(), vm.Config{}, nil)
+		chain, err := core.NewBlockChain(rawdb.NewMemoryDatabase(), testGspec, ethash.NewFaker(), nil)
 		if err != nil {
 			panic(err)
 		}

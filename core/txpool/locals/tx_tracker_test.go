@@ -28,7 +28,6 @@ import (
 	"github.com/onflow/go-ethereum/core/txpool"
 	"github.com/onflow/go-ethereum/core/txpool/legacypool"
 	"github.com/onflow/go-ethereum/core/types"
-	"github.com/onflow/go-ethereum/core/vm"
 	"github.com/onflow/go-ethereum/crypto"
 	"github.com/onflow/go-ethereum/ethdb"
 	"github.com/onflow/go-ethereum/params"
@@ -65,7 +64,7 @@ func newTestEnv(t *testing.T, n int, gasTip uint64, journal string) *testEnv {
 	})
 
 	db := rawdb.NewMemoryDatabase()
-	chain, _ := core.NewBlockChain(db, nil, gspec, nil, ethash.NewFaker(), vm.Config{}, nil)
+	chain, _ := core.NewBlockChain(db, gspec, ethash.NewFaker(), nil)
 
 	legacyPool := legacypool.New(legacypool.DefaultConfig, chain)
 	pool, err := txpool.New(gasTip, chain, []txpool.SubPool{legacyPool})

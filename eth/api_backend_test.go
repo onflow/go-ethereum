@@ -35,7 +35,6 @@ import (
 	"github.com/onflow/go-ethereum/core/txpool/legacypool"
 	"github.com/onflow/go-ethereum/core/txpool/locals"
 	"github.com/onflow/go-ethereum/core/types"
-	"github.com/onflow/go-ethereum/core/vm"
 	"github.com/onflow/go-ethereum/crypto"
 	"github.com/onflow/go-ethereum/params"
 )
@@ -61,7 +60,7 @@ func initBackend(withLocal bool) *EthAPIBackend {
 		db     = rawdb.NewMemoryDatabase()
 		engine = beacon.New(ethash.NewFaker())
 	)
-	chain, _ := core.NewBlockChain(db, nil, gspec, nil, engine, vm.Config{}, nil)
+	chain, _ := core.NewBlockChain(db, gspec, engine, nil)
 
 	txconfig := legacypool.DefaultConfig
 	txconfig.Journal = "" // Don't litter the disk with test journals
@@ -134,13 +133,17 @@ func TestSendTx(t *testing.T) {
 func testSendTx(t *testing.T, withLocal bool) {
 	b := initBackend(withLocal)
 
-	txA := pricedSetCodeTx(0, 250000, uint256.NewInt(params.GWei), uint256.NewInt(params.GWei), key, []unsignedAuth{
-		{
-			nonce: 0,
-			key:   key,
-		},
-	})
-	b.SendTx(context.Background(), txA)
+	txA := pricedSetCodeTx(0, 250000, uint256.NewInt(params.GWei), uint256.NewInt(params.GWei), key, []unsignedAuth{{nonce: 0, key: key}})
+	if err := b.SendTx(context.Background(), txA); err != nil {
+		t.Fatalf("Failed to submit tx: %v", err)
+	}
+	for {
+		pending, _ := b.TxPool().ContentFrom(address)
+		if len(pending) == 1 {
+			break
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
 
 	txB := makeTx(1, nil, nil, key)
 	err := b.SendTx(context.Background(), txB)
